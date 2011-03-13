@@ -139,8 +139,8 @@ def split(dump):
                 else:
                     continue
             
-            line = re.sub(re_comment_inline, r'\1', line)
             line = re.sub(re_comment_block, r'\1 \2', line)
+            line = re.sub(re_comment_inline, r'\1', line)
             if re_comment_block_open.match(line):
                 line = re.sub(re_comment_block_open, r'\1', line)
                 comment = True
