@@ -6,8 +6,8 @@ from urlparse import urlparse
 import subprocess
 import os
 import re
-import string
 import shutil
+import platform
 
 class ExecuteRemoteException(Exception):
     pass
@@ -19,12 +19,7 @@ def execute(dsn, command, env):
         exenv.update(exenv)
     else:
         command = map(lambda pair: "%s=%s" % pair, env.iteritems()) + command
-        command = [
-            'plink',
-            '-batch',
-            '-C',
-            '-l',  parsed.username,
-            '-pw', parsed.password,
+        command = platform.remote(parsed) + [
             parsed.hostname,
             subprocess.list2cmdline(command),
         ]
@@ -211,10 +206,9 @@ def run(dsn1, dsn2):
     p2 = 'dump/' + make(dsn2)
     
     os.system(subprocess.list2cmdline(
-        (
-            'start',
-            'winmerge\\WinMergeU.exe',
+        platform.DIFF_TOOL +
+        [
             p1,
             p2,
-        )
+        ]
     ))
