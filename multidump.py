@@ -8,6 +8,7 @@ import os
 import re
 import shutil
 import platform
+import config
 
 class ExecuteRemoteException(Exception):
     pass
@@ -80,7 +81,7 @@ def split(dump):
     # @todo???
     re_ignored_line = re.compile('^SET (?:search_path|default_with_oids) = [^;]+;$')
     #re_ignored_header_name = re.compile(r'^_slonycluster_') 
-    #re_ignored_header_schema = re.compile(r'^_slonycluster_|test|pgunit|test$')
+    re_ignored_header_schema = re.compile(r'^'+config.IGNORE_SHEMAS+'$')
     re_comment_inline = re.compile(r'(.*)--.*')
     re_comment_block  = re.compile(r'(.*)/\*.*?\*/(.*)')
     re_comment_block_open = re.compile(r'(.*)/\*.*')
@@ -110,8 +111,9 @@ def split(dump):
                     header = {}
                     for k in header_keys:
                         header[k] = r.group(k)
-                    #if re_ignored_header_name.search(header['name']) or re_ignored_header_schema.search(header['schema']):
-                    #    ignore_block = True
+
+                    if re_ignored_header_schema.search(header['schema']): # or re_ignored_header_name.search(header['name'])
+                        ignore_block = True
                     mode = MODE_HEADER_POST
                     continue
                 else:
